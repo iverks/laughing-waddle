@@ -1,0 +1,4 @@
+name = "SintPowerCase"
+uuid = "dcf425a8-86bf-4135-b17a-04ddca2f3b37"
+authors = ["Sigurd Hofsmo Jakobsen <sigurd.jakobsen@sintef.no>"]
+version = "0.1.0"
