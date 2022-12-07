@@ -1,0 +1,4 @@
+f_bus,t_bus,cb,closed
+1,2,True,True
+1,2,False,True
+2,1,False,True
