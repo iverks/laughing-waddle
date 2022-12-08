@@ -384,6 +384,11 @@ function get_n_buses(mpc::Case)::Int64
 	nrow(mpc.bus)
 end
 
+""" Returns the number of lines in the case."""
+function get_n_lines(mpc::Case)::Int64
+	nrow(mpc.branch)
+end
+
 """ Returns the row number of an element given by id"""
 function get_id_idx(mpc::Case, elm::Symbol, id::String)::Int64
 	row = findall(getfield(mpc, elm).ID .== id)

@@ -12,5 +12,6 @@ case_w_gencost = Case(fname_w_gencost)
 @test get_line_lims_pu(case) == [0.8, 1,1]
 @test case.gencost == DataFrame()
 @test get_n_buses(case) == 3
+@test get_n_lines(case) == 3
 
 @test case_w_gencost.gencost[2, :cp1] == 1.2
