@@ -1,4 +1,4 @@
 using Documenter, SintPowerCase
 
 makedocs(sitename="SintPowerCase documentation")
-deploydocs(repo = "github.com/hofsmo/SintPowerCase.jl")
+deploydocs(repo = "github.com/Hofsmo/SintPowerCase.jl.git")
