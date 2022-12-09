@@ -15,18 +15,6 @@ mutable struct Case
     gencost::DataFrame
 end
 
-mutable struct Fasad_Case
-    baseMVA::Float64
-    transformers::DataFrame
-    lines::DataFrame
-	switchgear::DataFrame
-	nodes::DataFrame
-	delivery_points::DataFrame
-	fault_indicators::DataFrame
-	gen_cost::DataFrame
-	trans_node::String
-end
-
 function Case()::Case
     baseMVA = 100
     bus = DataFrame()
@@ -39,20 +27,6 @@ function Case()::Case
 	transformer = DataFrame()
     gencost = DataFrame()
     Case(baseMVA, bus, branch, gen, switch, indicator, reldata, loaddata, transformer, gencost)
-end
-
-function Fasad_Case()::Fasad_Case
-    baseMVA = 100
-    transformers = DataFrame()
-    lines = DataFrame()
-    switchgear = DataFrame()
-	nodes = DataFrame()
-	delivery_points = DataFrame()
-	fault_indicators = DataFrame()
-    gencost = DataFrame()
-	trans_node = ""
-    Fasad_Case(baseMVA, transformers, lines, switchgear, nodes, delivery_points, fault_indicators, gencost,
-			   trans_node)
 end
 
 function Case(fname::String)::Case
@@ -72,22 +46,6 @@ function Case(fname::String)::Case
 	mpc.baseMVA = conf["configuration"]["baseMVA"]
 
 	return mpc
-end
-
-function Fasad_Case(fname::String)::Fasad_Case
-	# TODO: case when more csv files are listed for each field
-	mpc_fasad = Fasad_Case()
-	conf = TOML.parsefile(fname)
-	dir = splitdir(fname)[1]
-	for (field, files) in conf["files"]
-		println(string("Reading ", field))
-		 setfield!(mpc_fasad, Symbol(field),
-				   reduce(vcat,
-						  [CSV.File(joinpath(dir, file), stringtype=String) |> DataFrame for file in files]))
-	end
-	mpc_fasad.trans_node = conf["transmission_grid"]
-
-	return mpc_fasad
 end
 
 function push_bus!(mpc::Case, bus::DataFrameRow)
@@ -178,19 +136,6 @@ function get_branch(mpc::Case, id::String)::DataFrame
     return mpc.branch[mpc.branch.ID.==id,:]
 end
 
-function get_branch_data(mpc::Case, type::Symbol, f_bus::String, t_bus::String)::DataFrame
-	get_branch_type(getfield(mpc, type), f_bus, t_bus)
-end
-
-function get_branch_data(mpc::Case, type::Symbol, column::Symbol, f_bus::String, t_bus::String)
-	temp = get_branch_data(mpc, type, f_bus, t_bus)
-	if String(column) in names(temp)
-		return temp[!, column]
-	else
-		return nothing
-	end
-end
-
 function is_branch_type_in_case(df::DataFrame, f_bus::String, t_bus::String)::Bool
 	(any((df.f_bus .== f_bus) .& (df.t_bus .== t_bus)) ||
 	 any((df.t_bus .== f_bus) .& (df.f_bus .== t_bus)))
@@ -268,62 +213,6 @@ end
 
 function delete_bus!(mpc::Case, bus::String)
     delete!(mpc.bus, mpc.bus.ID .== bus)
-end
-
-"""
-    get_susceptance_vector(network::PowerGraphBase)::Array{Float64}
-    Returns the susceptance vector for performing a dc power flow.
-"""
-function get_susceptance_vector(case::Case)::Array{Float64, 1}
-    return map(x-> 1/x, case.branch[:,:x])
-end
-
-function get_susceptance_vector(case::Case, consider_status::Bool)::Array{Float64, 1}
-	if consider_status
-		return map(x-> 1/x,
-				   case.branch[case.branch[!, :status], :x])
-	else
-		return
-		get_susceptance_vector(case)
-	end
-end
-
-"""
-    get_incidence_matrix(network::PowerGraphBase)::Array{Float64}
-    Returns the susceptance vector for performing a dc power flow.
-"""
-function get_incidence_matrix(case::Case)::Array{Int64, 2}
-	A = zeros(Int, nrow(case.branch), nrow(case.bus))
-	for (id, branch) in enumerate(eachrow(case.branch))
-		A[id, get_bus_row(case, branch.f_bus)] = 1
-		A[id, get_bus_row(case, branch.t_bus)] = -1
-	end
-	return A
-end
-
-"""
-    get_incidence_matrix(network::PowerGraphBase)::Array{Float64}
-    Returns the susceptance vector for performing a dc power flow.
-"""
-function get_incidence_matrix(case::Case, consider_status::Bool)::Array{Int64, 2}
-	if consider_status
-		return get_incidence_matrix(case)[case.branch[:, :status], :]
-	else
-		return get_incidence_matrix(case)
-	end
-end
-
-# Note this does not work if there are multiple generators on one bus
-function get_power_injection_vector(case::Case)::Vector{Float64}
-	Pd = zeros(size(case.bus, 1))
-    Pg = zeros(length(Pd))
-	if isempty(case.loaddata)
-		Pd = case.bus[:, :Pd]
-	else
-		Pd[get_load_indices(case)] = case.loaddata.Pd
-	end
-	Pg[get_gen_indices(case)] = case.gen.Pg
-    return Pg - Pd
 end
 
 function get_line_lims_pu(case::Case)::Array{Float64}
@@ -428,4 +317,13 @@ end
 """Return indices of the buses with generators."""
 function get_load_indices(mpc::Case)::Vector{Bool}
 	return ∈(mpc.loaddata.bus).(mpc.bus.ID)
+end
+
+
+"""
+    is_load_bus(case, id::String)
+    Returns true if the bus bus_id is a load.
+"""
+function is_load_bus(case::Case, bus_id::String)::Bool
+	return any(x-> x>0, case.bus[case.bus.ID.==bus_id, :Pd])
 end
