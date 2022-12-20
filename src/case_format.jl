@@ -13,6 +13,7 @@ mutable struct Case
 	loaddata::DataFrame
 	transformer::DataFrame
     gencost::DataFrame
+    ref_bus::Integer
 end
 
 function Case()::Case
@@ -26,7 +27,8 @@ function Case()::Case
 	loaddata = DataFrame()
 	transformer = DataFrame()
     gencost = DataFrame()
-    Case(baseMVA, bus, branch, gen, switch, indicator, reldata, loaddata, transformer, gencost)
+    ref_bus = 0
+    Case(baseMVA, bus, branch, gen, switch, indicator, reldata, loaddata, transformer, gencost, ref_bus)
 end
 
 function Case(fname::String)::Case
@@ -44,6 +46,7 @@ function Case(fname::String)::Case
 		 setfield!(mpc, Symbol(field), temp)
 	end
 	mpc.baseMVA = conf["configuration"]["baseMVA"]
+    mpc.ref_bus = findall(mpc.bus.type.==3)[1]
 
 	return mpc
 end
