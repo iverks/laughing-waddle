@@ -61,7 +61,7 @@ function get_power_injection_vector(case::Case)::Vector{Float64}
 end
 
 function get_power_injection_vector_pu(case::Case)::Vector{Float64}
-    get_power_injection_vector/case.baseMVA
+    get_power_injection_vector(case)/case.baseMVA
 end
 
 """
