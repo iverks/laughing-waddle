@@ -168,7 +168,14 @@ function get_gen_indices(mpc::Case)::Vector{Bool}
 	return ∈(mpc.gen.bus).(mpc.bus.ID)
 end
 
-"""Return indices of the buses with generators."""
+"""
+    Returns the sum of production at generator buses.
+"""
+function get_bus_generated_power(case::Case)
+    combine(groupby(case.gen, :bus), :Pg => sum)[!, :Pg_sum]
+end
+
+"""Return indices of the buses with loads."""
 function get_load_indices(mpc::Case)::Vector{Bool}
 	return ∈(mpc.loaddata.bus).(mpc.bus.ID)
 end

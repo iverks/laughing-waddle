@@ -56,8 +56,12 @@ function get_power_injection_vector(case::Case)::Vector{Float64}
 	else
 		Pd[get_load_indices(case)] = case.loaddata.Pd
 	end
-	Pg[get_gen_indices(case)] = case.gen.Pg
+    Pg[get_gen_indices(case)] = get_bus_generated_power(case)
     return Pg - Pd
+end
+
+function get_power_injection_vector_pu(case::Case)::Vector{Float64}
+    get_power_injection_vector/case.baseMVA
 end
 
 """
