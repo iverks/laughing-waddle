@@ -64,6 +64,10 @@ function get_power_injection_vector_pu(case::Case)::Vector{Float64}
     get_power_injection_vector(case)/case.baseMVA
 end
 
+function get_bus_angle_vector(case::Case)
+    case.bus[:, :Va]
+end
+
 """
     get_dc_admittance_matrix(case)
     Returns the admittance matrix for performing a dc power flow.
