@@ -10,7 +10,7 @@ include("branch.jl")
 export get_line_lims_pu, get_n_lines, take_out_line!, is_switch, is_indicator, get_branch 
 
 include("matrices.jl")
-export get_incidence_matrix, get_island_incidence_matrix, get_dc_admittance_matrix, get_power_injection_vector_pu, get_bus_angle_vector
+export get_incidence_matrix, get_island_incidence_matrix, get_dc_admittance_matrix, get_power_injection_vector_pu, get_bus_angle_vector, get_susceptance_vector
 
 
 end # module SintPowerCase
