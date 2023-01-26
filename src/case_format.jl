@@ -12,7 +12,7 @@ mutable struct Case
 	reldata::DataFrame
 	loaddata::DataFrame
 	transformer::DataFrame
-    gencost::DataFrame
+    gendata::DataFrame
     ref_bus::Integer
 end
 
@@ -26,9 +26,9 @@ function Case()::Case
 	reldata = DataFrame()
 	loaddata = DataFrame()
 	transformer = DataFrame()
-    gencost = DataFrame()
+    gendata = DataFrame()
     ref_bus = 0
-    Case(baseMVA, bus, branch, gen, switch, indicator, reldata, loaddata, transformer, gencost, ref_bus)
+    Case(baseMVA, bus, branch, gen, switch, indicator, reldata, loaddata, transformer, gendata, ref_bus)
 end
 
 function Case(fname::String)::Case
