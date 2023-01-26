@@ -80,3 +80,10 @@ end
 function get_power_injection_vector_pu(case::Case, os::Integer)
     get_power_injection_vector(case, os)/case.baseMVA
 end
+
+"""
+    Returns the number of oses in the case.
+"""
+function get_n_os(case::Case)
+    length(unique(case.loaddata.OS))
+end
