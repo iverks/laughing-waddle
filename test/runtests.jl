@@ -14,3 +14,7 @@ end
 @testset "Test methods for constructing matrices" begin
     include("test_matrices.jl")
 end
+
+@testset "Test methods for retrieving load and generator data" begin
+    include("test_load_gen.jl")
+end

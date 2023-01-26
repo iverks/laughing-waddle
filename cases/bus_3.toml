@@ -3,6 +3,8 @@ bus = "bus_3_bus.csv"
 branch = "bus_3_branch.csv"
 gen = "bus_3_gen.csv"
 switch = "bus_3_switch.csv"
+gendata = "bus_3_gendata.csv"
+loaddata = "bus_3_loaddata.csv"
 
 [configuration]
 baseMVA = 100.0

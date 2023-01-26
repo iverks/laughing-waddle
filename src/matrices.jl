@@ -48,18 +48,6 @@ function get_incidence_matrix(case::Case, consider_status::Bool)::Array{Int64, 2
 	end
 end
 
-function get_power_injection_vector(case::Case)::Vector{Float64}
-	Pd = zeros(size(case.bus, 1))
-    Pg = zeros(length(Pd))
-	if isempty(case.loaddata)
-		Pd = case.bus[:, :Pd]
-	else
-		Pd[get_load_indices(case)] = case.loaddata.Pd
-	end
-    Pg[get_gen_indices(case)] = get_bus_generated_power(case)
-    return Pg - Pd
-end
-
 function get_power_injection_vector_pu(case::Case)::Vector{Float64}
     get_power_injection_vector(case)/case.baseMVA
 end

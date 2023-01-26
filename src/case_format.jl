@@ -44,6 +44,14 @@ function Case(fname::String)::Case
 			 end
 		 end
 		 setfield!(mpc, Symbol(field), temp)
+         # Sort everything to appear in the order of the buses
+         if field in ["gen", "gendata", "loaddata"]
+             sort!(temp, :bus)
+         end
+         # Sort the buses according to their ID
+         if field == "bus"
+             sort!(temp, :ID)
+         end
 	end
 	mpc.baseMVA = conf["configuration"]["baseMVA"]
     mpc.ref_bus = findall(mpc.bus.type.==3)[1]
@@ -163,28 +171,4 @@ function get_bus_row(mpc::Case, id::String)::Int64
 	get_id_idx(mpc, :bus, id)
 end
 
-"""Return indices of the buses with generators."""
-function get_gen_indices(mpc::Case)::Vector{Bool}
-	return ∈(mpc.gen.bus).(mpc.bus.ID)
-end
 
-"""
-    Returns the sum of production at generator buses.
-"""
-function get_bus_generated_power(case::Case)
-    combine(groupby(case.gen, :bus), :Pg => sum)[!, :Pg_sum]
-end
-
-"""Return indices of the buses with loads."""
-function get_load_indices(mpc::Case)::Vector{Bool}
-	return ∈(mpc.loaddata.bus).(mpc.bus.ID)
-end
-
-
-"""
-    is_load_bus(case, id::String)
-    Returns true if the bus bus_id is a load.
-"""
-function is_load_bus(case::Case, bus_id::String)::Bool
-	return any(x-> x>0, case.bus[case.bus.ID.==bus_id, :Pd])
-end
