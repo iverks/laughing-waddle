@@ -18,22 +18,16 @@ end
 
 """Return indices of the buses with loads."""
 function get_load_indices(mpc::Case)::Vector{Bool}
-	return ∈(mpc.loaddata.bus).(mpc.bus.ID)
+    if isempty(mpc.load)
+        return mpc.bus.Pd.>0
+    else
+	    return ∈(mpc.load.bus).(mpc.bus.ID)
+    end
 end
 
 """Return indices of the buses with generators."""
 function get_gen_indices(mpc::Case)::Vector{Bool}
 	return ∈(mpc.gen.bus).(mpc.bus.ID)
-end
-
-"""Return indices of the buses with generators."""
-function get_gen_indices(mpc::Case, os::Integer)::Vector{Bool}
-	return ∈(mpc.gendata.bus).(mpc.bus.ID)
-end
-
-"""Return indices of the buses with generators."""
-function get_load_indices(mpc::Case, os::Integer)::Vector{Bool}
-	return ∈(mpc.loaddata.bus).(mpc.bus.ID)
 end
 
 """
@@ -73,7 +67,7 @@ function get_power_injection_vector(case::Case, os::Integer)
 	Pd = zeros(size(case.bus, 1))
     Pg = zeros(length(Pd))
     Pd[get_load_indices(case)] = get_load_buses_power(case, os)
-    Pg[get_gen_indices(case, os)] = get_gen_buses_power(case, os)
+    Pg[get_gen_indices(case)] = get_gen_buses_power(case, os)
     return Pg - Pd
 end
 

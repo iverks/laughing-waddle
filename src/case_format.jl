@@ -7,6 +7,7 @@ mutable struct Case
     bus::DataFrame
     branch::DataFrame
     gen::DataFrame
+    load::DataFrame
 	switch::DataFrame
 	indicator::DataFrame
 	reldata::DataFrame
@@ -21,6 +22,7 @@ function Case()::Case
     bus = DataFrame()
     branch = DataFrame()
     gen = DataFrame()
+    load = DataFrame()
 	switch = DataFrame()
 	indicator = DataFrame()
 	reldata = DataFrame()
@@ -28,7 +30,7 @@ function Case()::Case
 	transformer = DataFrame()
     gendata = DataFrame()
     ref_bus = 0
-    Case(baseMVA, bus, branch, gen, switch, indicator, reldata, loaddata, transformer, gendata, ref_bus)
+    Case(baseMVA, bus, branch, gen, load, switch, indicator, reldata, loaddata, transformer, gendata, ref_bus)
 end
 
 function Case(fname::String)::Case
@@ -45,7 +47,7 @@ function Case(fname::String)::Case
 		 end
 		 setfield!(mpc, Symbol(field), temp)
          # Sort everything to appear in the order of the buses
-         if field in ["gen", "gendata", "loaddata"]
+         if field in ["gen", "load", "gendata", "loaddata"]
              sort!(temp, :bus)
          end
          # Sort the buses according to their ID
