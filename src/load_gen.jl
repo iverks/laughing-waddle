@@ -81,3 +81,38 @@ end
 function get_n_os(case::Case)
     length(unique(case.loaddata.OS))
 end
+
+"""
+    Fills the loaddata and gendata matrices with random data.
+
+    It generates new operating states by addding a normally distributed
+    number to the load demand that is already in the case. The number is
+    given as a standard deviation multiplied with the current load at the bus.
+"""
+function create_random_states!(case::Case, n_states::Integer, std::Real)
+    n_loads = length(case.load.P)
+    n_gens = length(case.gen.P)
+
+    gendata = DataFrame(OS=repeat(1:n_states, inner=n_gens),
+                        ID=repeat(case.gen.ID, inner=n_states),
+                        bus=repeat(case.gen.bus, inner=n_states),
+                        P=zeros(n_states*n_gens))
+    loaddata = DataFrame(OS=repeat(1:n_states, inner=n_loads),
+                         ID=repeat(case.load.ID, inner=n_states),
+                         bus=repeat(case.load.bus, inner=n_states),
+                         P=zeros(n_states*n_loads))
+    for os = 1:n_states
+        # Draw a new random load
+        Pl = case.load.P.*(ones(n_loads)+std*randn(n_loads))
+        loaddata[loaddata.OS.==os, :P] = Pl
+        # Set total prdoction equal to total load
+        Pg = sum(Pl)
+        S = sum(case.gen.Pmax)
+        for id in case.gen.ID
+            gendata[gendata.OS.==os .&& gendata.ID.==id, :P] .= Pg*case.gen[case.gen.ID.==id, :Pmax]/S
+        end
+    end
+   case.gendata = gendata 
+   case.loaddata = loaddata 
+end
+

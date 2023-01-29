@@ -4,6 +4,7 @@ branch = "bus_3_branch.csv"
 gen = "bus_3_gen.csv"
 switch = "bus_3_switch.csv"
 gendata = "bus_3_gendata.csv"
+load = "bus_3_load.csv"
 loaddata = "bus_3_loaddata.csv"
 
 [configuration]

@@ -22,3 +22,7 @@ case = Case(fname)
 @test get_power_injection_vector_pu(case, 2) == [0, 1, -1]
 
 @test get_n_os(case) == 2
+
+create_random_states!(case, 1, 0.1)
+
+@test sum(case.gendata.P) ≈ sum(case.gendata.P)
