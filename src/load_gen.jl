@@ -94,12 +94,12 @@ function create_random_states!(case::Case, n_states::Integer, std::Real)
     n_gens = length(case.gen.P)
 
     gendata = DataFrame(OS=repeat(1:n_states, inner=n_gens),
-                        ID=repeat(case.gen.ID, inner=n_states),
-                        bus=repeat(case.gen.bus, inner=n_states),
+                        ID=repeat(case.gen.ID, outer=n_states),
+                        bus=repeat(case.gen.bus, outer=n_states),
                         P=zeros(n_states*n_gens))
     loaddata = DataFrame(OS=repeat(1:n_states, inner=n_loads),
-                         ID=repeat(case.load.ID, inner=n_states),
-                         bus=repeat(case.load.bus, inner=n_states),
+                         ID=repeat(case.load.ID, outer=n_states),
+                         bus=repeat(case.load.bus, outer=n_states),
                          P=zeros(n_states*n_loads))
     for os = 1:n_states
         # Draw a new random load
