@@ -125,7 +125,7 @@ function set_bus_idx!(case::Case, df::DataFrame)
 end
 
 function set_gen_bus_idx!(case::Case)
-    set_bus_idx(case, case.gen)
+    set_bus_idx!(case, case.gen)
 end
 
 function set_load_bus_idx!(case::Case)
