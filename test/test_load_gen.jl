@@ -26,3 +26,7 @@ case = Case(fname)
 create_random_states!(case, 1, 0.1)
 
 @test sum(case.gendata.P) ≈ sum(case.gendata.P)
+
+set_load_bus_idx!(case)
+
+@test case.load[:, :bus_idx] == [3, 3]

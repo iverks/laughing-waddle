@@ -116,3 +116,18 @@ function create_random_states!(case::Case, n_states::Integer, std::Real)
    case.loaddata = loaddata 
 end
 
+"""
+   Find the indices of the buses where the generators or loads are located
+
+"""
+function set_bus_idx!(case::Case, df::DataFrame)
+    df[!, :bus_idx] = Integer.(indexin(df.bus, case.bus.ID))
+end
+
+function set_gen_bus_idx!(case::Case)
+    set_bus_idx(case, case.gen)
+end
+
+function set_load_bus_idx!(case::Case)
+    set_bus_idx!(case, case.load)
+end
