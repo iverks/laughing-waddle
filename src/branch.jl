@@ -54,6 +54,19 @@ function get_branch(mpc::Case, id::String)::DataFrame
     return mpc.branch[mpc.branch.ID.==id,:]
 end
 
+function get_branch_data(mpc::Case, type::Symbol, f_bus::String, t_bus::String)::DataFrame
+	get_branch_type(getfield(mpc, type), f_bus, t_bus)
+end
+
+function get_branch_data(mpc::Case, type::Symbol, column::Symbol, f_bus::String, t_bus::String)
+	temp = get_branch_data(mpc, type, f_bus, t_bus)
+	if String(column) in names(temp)
+		return temp[!, column]
+	else
+		return nothing
+	end
+end
+
 function is_branch_type_in_case(df::DataFrame, f_bus::String, t_bus::String)::Bool
 	(any((df.f_bus .== f_bus) .& (df.t_bus .== t_bus)) ||
 	 any((df.t_bus .== f_bus) .& (df.f_bus .== t_bus)))
