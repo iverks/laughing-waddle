@@ -6,6 +6,13 @@ function get_gen_buses_power(case::Case)
 end
 
 """
+    Returns the sum of production at load buses.
+"""
+function get_load_buses_power(case::Case)
+    get_all_buses_aggregated_power(case.load)
+end
+
+"""
    Aggregates the power for generators or loads for all buses
    
    Inputs:
@@ -44,7 +51,11 @@ end
 function get_power_injection_vector(case::Case)::Vector{Float64}
 	Pd = zeros(size(case.bus, 1))
     Pg = zeros(length(Pd))
-    Pd = case.bus[:, :Pd]
+    if isempty(case.load)
+        Pd = case.bus[:, :Pd]
+    else
+        Pd[get_load_indices(case)] = get_load_buses_power(case)
+    end
     Pg[get_gen_indices(case)] = get_gen_buses_power(case)
     return Pg - Pd
 end
