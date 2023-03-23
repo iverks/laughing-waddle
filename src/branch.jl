@@ -27,11 +27,9 @@ end
 function get_branch_type(branch::DataFrame, f_bus::String, t_bus::String)::DataFrame
     temp = branch[(branch.f_bus .== f_bus) .&
                       (branch.t_bus .== t_bus),:]
-	if isempty(temp)
-		temp = branch[(branch.t_bus .== f_bus) .&
-               (branch.f_bus .== t_bus),:]
-		   end
-   return temp
+	return vcat(temp,
+                branch[(branch.t_bus .== f_bus) .&
+                       (branch.f_bus .== t_bus),:])
 end
 
 function get_branch(mpc::Case, f_bus::String, t_bus::String)::DataFrame
