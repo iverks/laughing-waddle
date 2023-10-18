@@ -11,4 +11,11 @@ In addition to defining loads in the bus matrix. It is also possible to define a
 |1 |1  |residential  |
 |2 |1  |public       |
 
+|ID|bus|OS|P |
+|--|---|--|- |
+|1 |3  |1 |50|
+|2 |3  |1 |50|
+|1 |3  |2 |25|
+|2 |3  |2 |75|
+
 ![example workflow](https://github.com/Hofsmo/SintPowerCase.jl/actions/workflows/run_tests.yaml/badge.svg)
