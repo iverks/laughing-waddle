@@ -54,8 +54,25 @@ function Case(fname::String)::Case
          if field == "bus"
              sort!(temp, :ID)
          end
+        
 	end
-	mpc.baseMVA = conf["configuration"]["baseMVA"]
+        
+    # Make sure that load is in the case
+    if isempty(mpc.load)
+        indices = get_load_indices(mpc)
+        mpc.load = DataFrame(ID=1:sum(indices),
+                             bus=mpc.bus.ID[indices])
+    end
+    
+    if isempty(mpc.loaddata)
+        indices = get_load_indices(mpc)
+        mpc.loaddata = DataFrame(ID=1:sum(indices),
+                             bus=mpc.bus.ID[indices],
+                             OS=ones(Int, sum(indices)),
+                             P=mpc.bus.Pd[indices])
+    end
+
+    mpc.baseMVA = conf["configuration"]["baseMVA"]
     mpc.ref_bus = findall(mpc.bus.type.==3)[1]
 
 	return mpc

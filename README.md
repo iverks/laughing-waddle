@@ -4,7 +4,7 @@ This package is meant for reading power system data from different sources into 
 ## Changes compared to the MATPOWER case format
 
 ### Additional load and generator matrices
-In addition to defining loads in the bus matrix. It is also possible to define a load matrix in a similar way as the gen matrix used in the MATPOWE case format.
+In addition to defining loads in the bus matrix. It is also possible to define a load matrix in a similar way as the gen matrix used in the MATPOWER case format.
 
 |ID|bus|customer_type|
 |--|---|-------------|
