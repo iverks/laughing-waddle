@@ -103,3 +103,7 @@ function get_admittance_matrix(A::SparseMatrixCSC{Int64, Int64},
     Y_pr::Diagonal{ComplexF64})::SparseMatrixCSC{ComplexF64, Int64}
     return A'*Y_pr*A
 end
+
+function get_complex_voltage_vector(case::Case)::Vector{ComplexF64}
+    case.bus[:, :Vm].*exp.(im*case.bus[:, :Va])
+end
