@@ -1,4 +1,5 @@
 using LinearAlgebra
+using SparseArrays
 """
     get_susceptance_vector(case)
     Returns the susceptance vector for performing a dc power flow.
@@ -43,8 +44,8 @@ end
         consider_status: Whether or not branch in service status should be
         considered.
 """
-function get_incidence_matrix(case::Case)::Array{Int64, 2}
-	A = zeros(Int, nrow(case.branch), nrow(case.bus))
+function get_incidence_matrix(case::Case)::SparseMatrixCSC{Int64, Int64}
+	A = spzeros(Int, nrow(case.branch), nrow(case.bus))
 	for (id, branch) in enumerate(eachrow(case.branch))
 		A[id, get_bus_row(case, branch.f_bus)] = 1
 		A[id, get_bus_row(case, branch.t_bus)] = -1
@@ -52,7 +53,7 @@ function get_incidence_matrix(case::Case)::Array{Int64, 2}
 	return A
 end
 
-function get_incidence_matrix(case::Case, consider_status::Bool)::Array{Int64, 2}
+function get_incidence_matrix(case::Case, consider_status::Bool)::SparseMatrixCSC{Int64, Int64}
 	if consider_status
 		return get_incidence_matrix(case)[case.branch[:, :status], :]
 	else
@@ -88,7 +89,17 @@ end
 """
     returns the admittance matrix of the system.
 """
-function get_admittance_matrix(case::Case)::Array{ComplexF64}
-    A = get_incidence_matrix(case)
-    return A'*get_primitive_admittance_matrix(case)*A
-    end
+function get_admittance_matrix(case::Case)::SparseMatrixCSC{ComplexF64, Int64}
+    return get_admittance_matrix(get_incidence_matrix(case),
+                                 get_primitive_admittance_matrix(case))
+end
+
+"""
+    Returns the incide matrix of the system as A'*Y_pr*A, where
+    A is the system incidence matrix and Y_pr is the primitive
+    admittance matrix.
+"""
+function get_admittance_matrix(A::SparseMatrixCSC{Int64, Int64},
+    Y_pr::Diagonal{ComplexF64})::SparseMatrixCSC{ComplexF64, Int64}
+    return A'*Y_pr*A
+end
