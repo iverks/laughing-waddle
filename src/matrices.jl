@@ -9,7 +9,7 @@ using LinearAlgebra
             considered.
 """
 function get_susceptance_vector(case::Case)::Array{Float64, 1}
-    return map(x-> 1/x, case.branch[:,:x])
+    return map(x-> 1/x, case.branch[:, :x])
 end
 
 function get_susceptance_vector(case::Case, consider_status::Bool)::Array{Float64, 1}
@@ -21,6 +21,18 @@ function get_susceptance_vector(case::Case, consider_status::Bool)::Array{Float6
 		get_susceptance_vector(case)
 	end
 end
+
+"""
+    Returns the primitive admittance matrix for a power system.
+    This is a matrix with dimensions BxB where B is the number of branches.
+    It is a diagonal matrix with the sum of the line and shunt impedances
+    on the diagonal.
+"""
+function get_primitive_admittance_matrix(case::Case)::Diagonal{ComplexF64}
+    return Diagonal(map(x-> 1/x,
+                        case.branch[:, :r] + im*case.branch[:, :x]) + im*case.branch[:, :b])
+end
+
 
 """
     get_incidence_matrix(case)::Array{Float64}
@@ -72,3 +84,11 @@ function get_dc_admittance_matrix(case::Case, consider_status::Bool)
     A = get_incidence_matrix(case, consider_status)
     return A*Diagonal(get_susceptance_vector(case, consider_status))*A'
 end
+
+"""
+    returns the admittance matrix of the system.
+"""
+function get_admittance_matrix(case::Case)::Array{ComplexF64}
+    A = get_incidence_matrix(case)
+    return A'*get_primitive_admittance_matrix(case)*A
+    end
