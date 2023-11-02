@@ -27,20 +27,11 @@ take_out_line!(test, "2")
 @test A == get_incidence_matrix(test_3_bus)
 @test A_4_bus == get_incidence_matrix(test_4_bus)
 
-# Test AC power flow matrices
-y_12 = 1/(0.042 + im*1)
-y_13 = 1/(0.065 + im*0.5)
-y_23 = 1/(0.025 + im*0.75)
-
-
-b_1 = im*0.01
-b_2 = im*0.01
-b_3 = im*0.01
 Y_pr = Diagonal([y_12+b_1, y_13+b_2, y_23+b_3])
 
 @test Y_pr == get_primitive_admittance_matrix(test_3_bus)
 
-Y = [y_12+b_1+y_13+b_3 -y_12-b_2 -y_13-b_3;
-     -y_12-b_1 y_12+b_1+y_23+b_3 -y_23-b_3;
-     -y_13-b_2 -y_23-b_3 y_13+b_2+y_23+b_3]
-@test isapprox(sum(Y- get_admittance_matrix(case)), 0; atol=1e-9)
+@test isapprox(sum(Y_3bus - get_admittance_matrix(test_3_bus)), 0; atol=1e-9)
+
+@test isapprox(sum(Y_grainger - get_admittance_matrix(grainger)), 0; atol=1e-5)
+

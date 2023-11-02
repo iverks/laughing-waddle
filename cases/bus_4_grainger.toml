@@ -1,0 +1,13 @@
+# Example from page 337 in Power System ANalysis book
+# by Grainger.
+[files]
+bus = "bus_4_grainger_bus.csv"
+branch = "bus_4_grainger_branch.csv"
+gen = "bus_4_grainger_gen.csv"
+#gendata = "bus_4_grainger_gendata.csv"
+load = "bus_4_grainger_load.csv"
+#loaddata = "bus_4_grainger_loaddata.csv"
+#switch = "bus_4_grainger_switch.csv"
+
+[configuration]
+baseMVA = 100.0

@@ -90,8 +90,21 @@ end
     returns the admittance matrix of the system.
 """
 function get_admittance_matrix(case::Case)::SparseMatrixCSC{ComplexF64, Int64}
-    return get_admittance_matrix(get_incidence_matrix(case),
-                                 get_primitive_admittance_matrix(case))
+    if all(case.branch.b.==0)
+        return get_admittance_matrix(get_incidence_matrix(case),
+                                     get_primitive_admittance_matrix(case))
+    else
+        Y = spzeros(ComplexF64, length(case.bus.ID), length(case.bus.ID))
+        for branch in eachrow(case.branch)
+            f_idx = case.bus.ID.==branch.f_bus
+            t_idx = case.bus.ID.==branch.t_bus
+            Y[f_idx, f_idx] .+= 1/(branch.r+im*branch.x)+im*branch.b
+            Y[t_idx, t_idx] .+= 1/(branch.r+im*branch.x)+im*branch.b
+            Y[f_idx, t_idx] .-= 1/(branch.r+im*branch.x)
+            Y[t_idx, f_idx] .-= 1/(branch.r+im*branch.x)
+        end
+    end
+    return Y
 end
 
 """
