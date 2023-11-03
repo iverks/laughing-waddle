@@ -30,3 +30,8 @@ create_random_states!(case, 1, 0.1)
 set_load_bus_idx!(case)
 
 @test case.load[:, :bus_idx] == [3, 3]
+
+case = Case("../cases/bus_4_grainger.toml")
+Pd = -[50 + im*30.99, 170+im*105.34, 200+im*123.94, 80+im*49.58]
+Pd[4] += 318
+@test get_complex_power_injection_vector(case) == Pd

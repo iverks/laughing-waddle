@@ -2,24 +2,34 @@
     Returns the sum of production at generator buses.
 """
 function get_gen_buses_power(case::Case)
-    get_all_buses_aggregated_power(case.gen)
+    get_all_buses_aggregated_power(case.gen, :P)
 end
 
 """
-    Returns the sum of production at load buses.
+    Returns the sum of active load at load buses.
 """
 function get_load_buses_power(case::Case)
-    get_all_buses_aggregated_power(case.load)
+    get_all_buses_aggregated_power(case.load, :P)
 end
+
+"""
+    Returns the sum of reactive consumption at load buses.
+"""
+function get_load_buses_reactive_power(case::Case)
+    get_all_buses_aggregated_power(case.load, :Q)
+end
+
 
 """
    Aggregates the power for generators or loads for all buses
    
    Inputs:
         df: Dataframe with either the power for all generators or loads.
+        type: Active or reactive power.
 """
-function get_all_buses_aggregated_power(df::DataFrame)
-    combine(groupby(df, :bus), :P => sum)[!, :P_sum]
+function get_all_buses_aggregated_power(df::DataFrame,
+    type::Symbol)
+    combine(groupby(df, :bus), type => sum)[!, Symbol(string(type)*"_sum")]
 end
 
 
@@ -51,27 +61,35 @@ end
 function get_power_injection_vector(case::Case)::Vector{Float64}
 	Pd = zeros(size(case.bus, 1))
     Pg = zeros(length(Pd))
-    if isempty(case.load)
-        Pd = case.bus[:, :Pd]
-    else
-        Pd[get_load_indices(case)] = get_load_buses_power(case)
-    end
+
+    Pd[get_load_indices(case)] = get_load_buses_power(case)
     Pg[get_gen_indices(case)] = get_gen_buses_power(case)
     return Pg - Pd
 end
+
+function get_complex_power_injection_vector(case::Case)
+	Qd = zeros(size(case.bus, 1))
+    Qd[get_load_indices(case)] = get_load_buses_reactive_power(case)
+    return get_power_injection_vector(case)-im*Qd
+end
+
+function get_complex_power_injection_vector_pu(case::Case)
+    get_complex_power_injection_vector(case)/case.baseMVA
+end
+
 
 """
     Returns the power for generator buses for os
 """
 function get_gen_buses_power(case::Case, os::Integer)
-    get_all_buses_aggregated_power(case.gendata[case.gendata.OS.==os,:])
+    get_all_buses_aggregated_power(case.gendata[case.gendata.OS.==os,:], :P)
 end
 
 """
     Returns the power demamd for load buses for os
 """
 function get_load_buses_power(case::Case, os::Integer)
-    get_all_buses_aggregated_power(case.loaddata[case.loaddata.OS.==os,:])
+    get_all_buses_aggregated_power(case.loaddata[case.loaddata.OS.==os,:], :P)
 end
 
 function get_power_injection_vector(case::Case, os::Integer)
@@ -85,6 +103,8 @@ end
 function get_power_injection_vector_pu(case::Case, os::Integer)
     get_power_injection_vector(case, os)/case.baseMVA
 end
+
+
 
 """
     Returns the number of oses in the case.

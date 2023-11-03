@@ -62,6 +62,8 @@ function Case(fname::String)::Case
         indices = get_load_indices(mpc)
         mpc.load = DataFrame(ID=1:sum(indices),
                              bus=mpc.bus.ID[indices])
+        mpc.load[:, :P] = mpc.bus[indices, :Pd]
+        mpc.load[:, :Q] = mpc.bus[indices, :Qd]
     end
     
     if isempty(mpc.loaddata)
