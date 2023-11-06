@@ -31,7 +31,7 @@ end
 """
 function get_primitive_admittance_matrix(case::Case)::Diagonal{ComplexF64}
     return Diagonal(map(x-> 1/x,
-                        case.branch[:, :r] + im*case.branch[:, :x]) + im*case.branch[:, :b])
+                        case.branch[:, :r] + im*case.branch[:, :x]))
 end
 
 

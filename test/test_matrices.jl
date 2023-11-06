@@ -27,7 +27,7 @@ take_out_line!(test, "2")
 @test A == get_incidence_matrix(test_3_bus)
 @test A_4_bus == get_incidence_matrix(test_4_bus)
 
-Y_pr = Diagonal([y_12+b_1, y_13+b_2, y_23+b_3])
+Y_pr = Diagonal([y_12, y_13, y_23])
 
 @test Y_pr == get_primitive_admittance_matrix(test_3_bus)
 
