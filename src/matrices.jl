@@ -96,16 +96,36 @@ function get_admittance_matrix(case::Case)::SparseMatrixCSC{ComplexF64, Int64}
     else
         Y = spzeros(ComplexF64, length(case.bus.ID), length(case.bus.ID))
         for branch in eachrow(case.branch)
-            f_idx = case.bus.ID.==branch.f_bus
-            t_idx = case.bus.ID.==branch.t_bus
-            Y[f_idx, f_idx] .+= 1/(branch.r+im*branch.x)+im*branch.b
-            Y[t_idx, t_idx] .+= 1/(branch.r+im*branch.x)+im*branch.b
-            Y[f_idx, t_idx] .-= 1/(branch.r+im*branch.x)
-            Y[t_idx, f_idx] .-= 1/(branch.r+im*branch.x)
+            add_branch_to_admittance_matrix!(Y, case.bus.ID.==branch.f_bus, case.bus.ID.==branch.t_bus,
+                                            branch.r, branch.x, branch.b)
+
         end
     end
     return Y
 end
+
+function add_branch_to_admittance_matrix!(Y::SparseMatrixCSC{ComplexF64, Int64},
+        f_idx::BitVector, t_idx::BitVector, x::Real, r::Real, b::Real)
+    Y[f_idx, f_idx] .+= 1/(r+im*x)+im*b
+    Y[t_idx, t_idx] .+= 1/(r+im*x)+im*b
+    Y[f_idx, t_idx] .-= 1/(r+im*x)
+    Y[t_idx, f_idx] .-= 1/(r+im*x)
+end
+
+"""
+    Creates a matrix that if subtracted to the admittance matrix implements a 
+    contingency.
+"""
+function contingency_matrix(case::Case, f_bus::String, t_bus::String)
+    Y = spzeros(ComplexF64, length(case.bus.ID), length(case.bus.ID))
+    for branch in eachrow(case.branch[case.branch.f_bus.==f_bus, case.branch.t_bus.==t_bus])
+        add_branch_to_admittance_matrix!(Y, case.bus.ID.==f_bus, case.bus.ID.==t_bus,
+                                         branch.r, branch.x, branch.b)
+    end
+
+    return Y
+end
+
 
 """
     Returns the incide matrix of the system as A'*Y_pr*A, where
