@@ -118,11 +118,10 @@ end
 """
 function contingency_matrix(case::Case, f_bus::String, t_bus::String)
     Y = spzeros(ComplexF64, length(case.bus.ID), length(case.bus.ID))
-    for branch in eachrow(case.branch[case.branch.f_bus.==f_bus, case.branch.t_bus.==t_bus])
+    for branch in eachrow(case.branch[case.branch.f_bus.==f_bus .&& case.branch.t_bus.==t_bus, :])
         add_branch_to_admittance_matrix!(Y, case.bus.ID.==f_bus, case.bus.ID.==t_bus,
                                          branch.r, branch.x, branch.b)
     end
-
     return Y
 end
 
