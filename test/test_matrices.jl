@@ -35,3 +35,4 @@ Y_pr = Diagonal([y_12, y_13, y_23])
 
 @test isapprox(sum(Y_grainger - get_admittance_matrix(grainger)), 0; atol=1e-5)
 
+@test contingency_matrix(grainger, "1", "2") == contingency_matrix(grainger, 1)

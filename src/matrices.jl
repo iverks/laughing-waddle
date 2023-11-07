@@ -115,6 +115,10 @@ end
 """
     Creates a matrix that if subtracted to the admittance matrix implements a 
     contingency.
+
+    Args:
+        f_bus: from bus for the contingency
+        t_bus: for the contingency.
 """
 function contingency_matrix(case::Case, f_bus::String, t_bus::String)
     Y = spzeros(ComplexF64, length(case.bus.ID), length(case.bus.ID))
@@ -122,6 +126,16 @@ function contingency_matrix(case::Case, f_bus::String, t_bus::String)
         add_branch_to_admittance_matrix!(Y, case.bus.ID.==f_bus, case.bus.ID.==t_bus,
                                          branch.r, branch.x, branch.b)
     end
+    return Y
+end
+
+function contingency_matrix(case::Case, line::Int)
+    Y = spzeros(ComplexF64, length(case.bus.ID), length(case.bus.ID))
+    add_branch_to_admittance_matrix!(
+        Y,
+        case.bus.ID.==case.branch[line, :f_bus],
+        case.bus.ID.==case.branch[line, :t_bus],
+        case.branch[line, :r], case.branch[line, :x], case.branch[line, :b])
     return Y
 end
 
