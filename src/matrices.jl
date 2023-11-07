@@ -105,7 +105,7 @@ function get_admittance_matrix(case::Case)::SparseMatrixCSC{ComplexF64, Int64}
 end
 
 function add_branch_to_admittance_matrix!(Y::SparseMatrixCSC{ComplexF64, Int64},
-        f_idx::BitVector, t_idx::BitVector, x::Real, r::Real, b::Real)
+        f_idx::BitVector, t_idx::BitVector, r::Real, x::Real, b::Real)
     Y[f_idx, f_idx] .+= 1/(r+im*x)+im*b
     Y[t_idx, t_idx] .+= 1/(r+im*x)+im*b
     Y[f_idx, t_idx] .-= 1/(r+im*x)
