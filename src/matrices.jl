@@ -112,7 +112,7 @@ function add_branch_to_admittance_matrix!(Y::SparseMatrixCSC{ComplexF64, Int64},
     Y[t_idx, f_idx] .-= 1/(r+im*x)
 end
 
-function add_branch_to_dc_admittance_matrix!(Y::SparseMatrixCSC{Real, Int64},
+function add_branch_to_dc_admittance_matrix!(Y::SparseMatrixCSC{<:Real, Int64},
         f_idx::BitVector, t_idx::BitVector, x::Real)
     Y[f_idx, f_idx] .+= 1/x
     Y[t_idx, t_idx] .+= 1/x
