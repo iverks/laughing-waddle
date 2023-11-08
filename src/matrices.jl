@@ -148,7 +148,7 @@ function contingency_matrix(case::Case, line::Int)
 end
 
 function dc_contingency_matrix(case::Case, f_bus::String, t_bus::String)
-    Y = zeros(length(case.bus.ID), length(case.bus.ID))
+    Y = spzeros(length(case.bus.ID), length(case.bus.ID))
     for branch in eachrow(case.branch[case.branch.f_bus.==f_bus .&& case.branch.t_bus.==t_bus, :])
         add_branch_to_dc_admittance_matrix!(Y, case.bus.ID.==f_bus, case.bus.ID.==t_bus,
                                          branch.x)
@@ -157,7 +157,7 @@ function dc_contingency_matrix(case::Case, f_bus::String, t_bus::String)
 end
 
 function dc_contingency_matrix(case::Case, line::Int)
-    Y = zeros(length(case.bus.ID), length(case.bus.ID))
+    Y = sppzeros(length(case.bus.ID), length(case.bus.ID))
     add_branch_to_dc_admittance_matrix!(
         Y,
         case.bus.ID.==case.branch[line, :f_bus],
