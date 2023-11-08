@@ -112,6 +112,14 @@ function add_branch_to_admittance_matrix!(Y::SparseMatrixCSC{ComplexF64, Int64},
     Y[t_idx, f_idx] .-= 1/(r+im*x)
 end
 
+function add_branch_to_dc_admittance_matrix!(Y::SparseMatrixCSC{Real, Int64},
+        f_idx::BitVector, t_idx::BitVector, x::Real)
+    Y[f_idx, f_idx] .+= 1/x
+    Y[t_idx, t_idx] .+= 1/x
+    Y[f_idx, t_idx] .-= 1/x
+    Y[t_idx, f_idx] .-= 1/x
+end
+
 """
     Creates a matrix that if subtracted to the admittance matrix implements a 
     contingency.
@@ -139,6 +147,24 @@ function contingency_matrix(case::Case, line::Int)
     return Y
 end
 
+function dc_contingency_matrix(case::Case, f_bus::String, t_bus::String)
+    Y = zeros(length(case.bus.ID), length(case.bus.ID))
+    for branch in eachrow(case.branch[case.branch.f_bus.==f_bus .&& case.branch.t_bus.==t_bus, :])
+        add_branch_to_dc_admittance_matrix!(Y, case.bus.ID.==f_bus, case.bus.ID.==t_bus,
+                                         branch.x)
+    end
+    return Y
+end
+
+function dc_contingency_matrix(case::Case, line::Int)
+    Y = zeros(length(case.bus.ID), length(case.bus.ID))
+    add_branch_to_dc_admittance_matrix!(
+        Y,
+        case.bus.ID.==case.branch[line, :f_bus],
+        case.bus.ID.==case.branch[line, :t_bus],
+        case.branch[line, :x])
+    return Y
+end
 
 """
     Returns the incide matrix of the system as A'*Y_pr*A, where
