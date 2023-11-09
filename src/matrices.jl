@@ -153,7 +153,7 @@ function dc_contingency_matrix(case::Case, f_bus::String, t_bus::String)
         add_branch_to_dc_admittance_matrix!(Y, case.bus.ID.==f_bus, case.bus.ID.==t_bus,
                                          branch.x)
     end
-    return Y
+    return -Y
 end
 
 function dc_contingency_matrix(case::Case, line::Int)
@@ -163,7 +163,7 @@ function dc_contingency_matrix(case::Case, line::Int)
         case.bus.ID.==case.branch[line, :f_bus],
         case.bus.ID.==case.branch[line, :t_bus],
         case.branch[line, :x])
-    return Y
+    return -Y
 end
 
 """
