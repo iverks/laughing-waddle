@@ -54,6 +54,10 @@ function Case(fname::String)::Case
          if field == "bus"
              sort!(temp, :ID)
          end
+
+         # Make sure that values are float and not Int
+         transform!(temp,
+            setdiff(names(temp, Int), ["status", "type"]) .=> ByRow(Float64), renamecols=false)
         
 	end
         
@@ -73,6 +77,8 @@ function Case(fname::String)::Case
                              OS=ones(Int, sum(indices)),
                              P=mpc.bus.Pd[indices])
     end
+
+    # 
 
     mpc.baseMVA = conf["configuration"]["baseMVA"]
     mpc.ref_bus = findall(mpc.bus.type.==3)[1]
