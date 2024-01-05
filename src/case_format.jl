@@ -68,24 +68,23 @@ function Case(fname::String)::Case
                              bus=mpc.bus.ID[indices])
         mpc.load[:, :P] = mpc.bus[indices, :Pd]
         mpc.load[:, :Q] = mpc.bus[indices, :Qd]
-    else
-        if "bus" ∉ names(mpc.load)
-            @error "No bus column in load dataframe"
-        end
-        if "P" ∉ names(mpc.load)
-            @warn "load dataframe found, but no load found, attemping to use bus dataframe"
-            mpc.load[!, :P] = [mpc.bus[mpc.bus.ID .== load.bus, :Pd][1] for load in eachrow(mpc.load)]
-        end
-        if "type" ∉ names(mpc.load)
-            @warn "Customer type not found."
-            @warn "Assuming all loads to be residential"
-            mpc.load.type .= "residential"
-        end
-        if "nfc" ∉ names(mpc.load)
-            @warn "No information regarding non-firm connections"
-            @warn "Assuming all loads to be firm connections"
-            mpc.load.nfc .= true
-        end
+    end
+    if "bus" ∉ names(mpc.load)
+        @error "No bus column in load dataframe"
+    end
+    if "P" ∉ names(mpc.load)
+        @warn "load dataframe found, but no load found, attemping to use bus dataframe"
+        mpc.load[!, :P] = [mpc.bus[mpc.bus.ID .== load.bus, :Pd][1] for load in eachrow(mpc.load)]
+    end
+    if "type" ∉ names(mpc.load)
+        @warn "Customer type not found."
+        @warn "Assuming all loads to be residential"
+        mpc.load.type .= "residential"
+    end
+    if "nfc" ∉ names(mpc.load)
+        @warn "No information regarding non-firm connections"
+        @warn "Assuming all loads to be firm connections"
+        mpc.load.nfc .= true
     end
     
     if isempty(mpc.loaddata)
