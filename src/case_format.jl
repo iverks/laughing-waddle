@@ -84,7 +84,7 @@ function Case(fname::String)::Case
     if "nfc" ∉ names(mpc.load)
         @warn "No information regarding non-firm connections"
         @warn "Assuming all loads to be firm connections"
-        mpc.load.nfc .= true
+        mpc.load.nfc .= false
     end
     
     if isempty(mpc.loaddata)
