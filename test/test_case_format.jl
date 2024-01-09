@@ -12,3 +12,5 @@ case = Case(fname)
 @test get_n_buses(test_3_bus) == 3
 
 @test case.ref_bus == 1
+
+@test case.storage[1, :Pmax] == 10
