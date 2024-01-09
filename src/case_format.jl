@@ -8,6 +8,7 @@ mutable struct Case
     branch::DataFrame
     gen::DataFrame
     load::DataFrame
+    storage::DataFrame
 	switch::DataFrame
 	indicator::DataFrame
 	reldata::DataFrame
@@ -23,6 +24,7 @@ function Case()::Case
     branch = DataFrame()
     gen = DataFrame()
     load = DataFrame()
+    storage = DataFrame()
 	switch = DataFrame()
 	indicator = DataFrame()
 	reldata = DataFrame()
@@ -30,7 +32,7 @@ function Case()::Case
 	transformer = DataFrame()
     gendata = DataFrame()
     ref_bus = 0
-    Case(baseMVA, bus, branch, gen, load, switch, indicator, reldata, loaddata, transformer, gendata, ref_bus)
+    Case(baseMVA, bus, branch, gen, load, storage, switch, indicator, reldata, loaddata, transformer, gendata, ref_bus)
 end
 
 function Case(fname::String)::Case
