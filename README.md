@@ -26,11 +26,7 @@ In addition to defining loads in the bus matrix. It is also possible to define a
 |1 |3  |2 |25|
 |2 |3  |2 |75|
 
-## Storage Matrix
-The format also supports adding storage devices to the case. They are specified in a matrix on the following format:
-
-|ID|bus|Pmax|Pmin|Emax|SOC|
-|1 | 1 |10  |-10 |100 |0.7|
-The column Emax is the energy capacity and the column SOC is the state of charge.
+## Storage units
+The format also supports adding storage devices to the case. They are specified in the gen matrix by adding the additional columns, Emax the energy capacity and E the energy stored.
 
 ![example workflow](https://github.com/Hofsmo/SintPowerCase.jl/actions/workflows/run_tests.yaml/badge.svg)

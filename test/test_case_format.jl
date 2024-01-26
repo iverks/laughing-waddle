@@ -13,4 +13,5 @@ case = Case(fname)
 
 @test case.ref_bus == 1
 
-@test case.storage[1, :Pmax] == 10
+@test case.gen[1, :E] == 10000
+@test case.gen[2, :external] == 0
