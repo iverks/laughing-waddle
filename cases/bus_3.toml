@@ -6,7 +6,6 @@ switch = "bus_3_switch.csv"
 gendata = "bus_3_gendata.csv"
 load = "bus_3_load.csv"
 loaddata = "bus_3_loaddata.csv"
-storage = "bus_3_storage.csv"
 
 [configuration]
 baseMVA = 100.0
