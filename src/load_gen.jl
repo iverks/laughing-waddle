@@ -162,3 +162,17 @@ end
 function set_load_bus_idx!(case::Case)
     set_bus_idx!(case, case.load)
 end
+
+"""
+    returns the total load power at a bus.
+"""
+function get_load_bus_power(case::Case, bus::String)
+    sum(case.load[case.load.bus.==bus, :P])
+end
+
+"""
+    returns the total gen power at a bus.
+"""
+function get_gen_bus_power(case::Case, bus::String)
+    sum(case.gen[case.gen.bus.==bus, :P])
+end

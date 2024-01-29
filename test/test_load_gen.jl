@@ -9,6 +9,9 @@ case = Case(fname)
 
 @test get_gen_buses_power(case) == [0, 100]
 
+@test get_load_bus_power(case, "3") == 100
+@test get_gen_bus_power(case, "2") == 100
+
 @test get_gen_buses_power(case, 1) == [0, 100]
 @test get_gen_buses_power(case, 2) == [0, 100]
 
