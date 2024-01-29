@@ -29,4 +29,7 @@ In addition to defining loads in the bus matrix. It is also possible to define a
 ## Storage units
 The format also supports adding storage devices to the case. They are specified in the gen matrix by adding the additional columns, Emax the energy capacity and E the energy stored.
 
+## External grids or reserves
+External grids or reserve connections are indicated by an extra column in the gen matrix named external that can take the value 1 or 0.
+
 ![example workflow](https://github.com/Hofsmo/SintPowerCase.jl/actions/workflows/run_tests.yaml/badge.svg)

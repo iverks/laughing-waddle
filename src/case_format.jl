@@ -99,6 +99,11 @@ function Case(fname::String)::Case
 
     mpc.baseMVA = conf["configuration"]["baseMVA"]
     mpc.ref_bus = findall(mpc.bus.type.==3)[1]
+    if "external" ∉ names(mpc.gen)
+        @warn "No information regarding external generators in gen."
+        @warn "Assuming all generators to be non-external except slack"
+        mpc.gen.external .= false
+    end
 
 	return mpc
 end
