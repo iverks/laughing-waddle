@@ -159,9 +159,9 @@ function to_csv(mpc::Case, fname::String)
 	for field in fieldnames(typeof(mpc))
 		df = getfield(mpc, field)
 		if typeof(df) == DataFrame
-			fpath = string(fname, "_", String(field))
+			fpath = string(fname, "_", String(field), ".csv")
 			conf["files"][String(field)] = fpath
-			file = open(string(fpath, ".csv"), "w")
+			file = open(fpath, "w")
 			CSV.write(file, df)
 			close(file)
 		else
