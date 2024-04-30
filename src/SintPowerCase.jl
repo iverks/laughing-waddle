@@ -1,7 +1,7 @@
 module SintPowerCase
 
 include("case_format.jl")
-export Case, get_n_buses, get_islanded_buses, get_bus, get_reliability_data
+export Case, get_n_buses, get_islanded_buses, get_bus, get_reliability_data, to_csv
 
 include("load_gen.jl")
 export get_power_injection_vector, is_gen_bus, get_load_indices, get_gen_indices, is_load_bus, get_gen_buses_power, get_load_buses_power, get_n_os, create_random_states!, set_gen_bus_idx!, set_load_bus_idx!, set_bus_idx!, push_bus!, get_gen, push_gen!, get_complex_power_injection_vector, get_complex_power_injection_vector_pu, contingency_matrix, get_load_bus_power, get_gen_bus_power
