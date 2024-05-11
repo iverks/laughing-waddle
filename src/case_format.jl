@@ -164,8 +164,6 @@ function to_csv(mpc::Case, fname::String)
 			file = open(fpath, "w")
 			CSV.write(file, df)
 			close(file)
-		else
-			conf["configuration"][String(field)] = df
 		end
 	end
 	file = open(string(fname, ".toml"), "w")
