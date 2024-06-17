@@ -9,18 +9,18 @@ using SparseArrays
         consider_status: Whether or not branch in service status should be
             considered.
 """
-function get_susceptance_vector(case::Case)::Array{Float64, 1}
-    return map(x-> 1/x, case.branch[:, :x])
+function get_susceptance_vector(case::Case)::Array{Float64,1}
+    return map(x -> 1 / x, case.branch[:, :x])
 end
 
-function get_susceptance_vector(case::Case, consider_status::Bool)::Array{Float64, 1}
-	if consider_status
-		return map(x-> 1/x,
-				   case.branch[case.branch[!, :status], :x])
-	else
-		return
-		get_susceptance_vector(case)
-	end
+function get_susceptance_vector(case::Case, consider_status::Bool)::Array{Float64,1}
+    if consider_status
+        return map(x -> 1 / x,
+            case.branch[case.branch[!, :status], :x])
+    else
+        return
+        get_susceptance_vector(case)
+    end
 end
 
 """
@@ -30,8 +30,8 @@ end
     on the diagonal.
 """
 function get_primitive_admittance_matrix(case::Case)::Diagonal{ComplexF64}
-    return Diagonal(map(x-> 1/x,
-                        case.branch[:, :r] + im*case.branch[:, :x]))
+    return Diagonal(map(x -> 1 / x,
+        case.branch[:, :r] + im * case.branch[:, :x]))
 end
 
 
@@ -44,25 +44,25 @@ end
         consider_status: Whether or not branch in service status should be
         considered.
 """
-function get_incidence_matrix(case::Case)::SparseMatrixCSC{Int64, Int64}
-	A = spzeros(Int, nrow(case.branch), nrow(case.bus))
-	for (id, branch) in enumerate(eachrow(case.branch))
-		A[id, get_bus_row(case, branch.f_bus)] = 1
-		A[id, get_bus_row(case, branch.t_bus)] = -1
-	end
-	return A
+function get_incidence_matrix(case::Case)::SparseMatrixCSC{Int64,Int64}
+    A = spzeros(Int, nrow(case.branch), nrow(case.bus))
+    for (id, branch) in enumerate(eachrow(case.branch))
+        A[id, get_bus_row(case, branch.f_bus)] = 1
+        A[id, get_bus_row(case, branch.t_bus)] = -1
+    end
+    return A
 end
 
-function get_incidence_matrix(case::Case, consider_status::Bool)::SparseMatrixCSC{Int64, Int64}
-	if consider_status
-		return get_incidence_matrix(case)[case.branch[:, :status], :]
-	else
-		return get_incidence_matrix(case)
-	end
+function get_incidence_matrix(case::Case, consider_status::Bool)::SparseMatrixCSC{Int64,Int64}
+    if consider_status
+        return get_incidence_matrix(case)[case.branch[:, :status], :]
+    else
+        return get_incidence_matrix(case)
+    end
 end
 
 function get_power_injection_vector_pu(case::Case)::Vector{Float64}
-    get_power_injection_vector(case)/case.baseMVA
+    get_power_injection_vector(case) / case.baseMVA
 end
 
 function get_bus_angle_vector(case::Case)
@@ -78,46 +78,46 @@ end
 """
 function get_dc_admittance_matrix(case::Case)
     A = get_incidence_matrix(case)
-    return A*Diagonal(get_susceptance_vector(case))*A'
-    end
+    return A * Diagonal(get_susceptance_vector(case)) * A'
+end
 
 function get_dc_admittance_matrix(case::Case, consider_status::Bool)
     A = get_incidence_matrix(case, consider_status)
-    return A*Diagonal(get_susceptance_vector(case, consider_status))*A'
+    return A * Diagonal(get_susceptance_vector(case, consider_status)) * A'
 end
 
 """
     returns the admittance matrix of the system.
 """
-function get_admittance_matrix(case::Case)::SparseMatrixCSC{ComplexF64, Int64}
-    if all(case.branch.b.==0)
+function get_admittance_matrix(case::Case)::SparseMatrixCSC{ComplexF64,Int64}
+    if all(case.branch.b .== 0)
         return get_admittance_matrix(get_incidence_matrix(case),
-                                     get_primitive_admittance_matrix(case))
+            get_primitive_admittance_matrix(case))
     else
         Y = spzeros(ComplexF64, length(case.bus.ID), length(case.bus.ID))
         for branch in eachrow(case.branch)
-            add_branch_to_admittance_matrix!(Y, case.bus.ID.==branch.f_bus, case.bus.ID.==branch.t_bus,
-                                            branch.r, branch.x, branch.b)
+            add_branch_to_admittance_matrix!(Y, case.bus.ID .== branch.f_bus, case.bus.ID .== branch.t_bus,
+                branch.r, branch.x, branch.b)
 
         end
     end
     return Y
 end
 
-function add_branch_to_admittance_matrix!(Y::SparseMatrixCSC{ComplexF64, Int64},
-        f_idx::BitVector, t_idx::BitVector, r::Real, x::Real, b::Real)
-    Y[f_idx, f_idx] .+= 1/(r+im*x)+im*b
-    Y[t_idx, t_idx] .+= 1/(r+im*x)+im*b
-    Y[f_idx, t_idx] .-= 1/(r+im*x)
-    Y[t_idx, f_idx] .-= 1/(r+im*x)
+function add_branch_to_admittance_matrix!(Y::SparseMatrixCSC{ComplexF64,Int64},
+    f_idx::BitVector, t_idx::BitVector, r::Real, x::Real, b::Real)
+    Y[f_idx, f_idx] .+= 1 / (r + im * x) + im * b
+    Y[t_idx, t_idx] .+= 1 / (r + im * x) + im * b
+    Y[f_idx, t_idx] .-= 1 / (r + im * x)
+    Y[t_idx, f_idx] .-= 1 / (r + im * x)
 end
 
-function add_branch_to_dc_admittance_matrix!(Y::SparseMatrixCSC{<:Real, Int64},
-        f_idx::BitVector, t_idx::BitVector, x::Real)
-    Y[f_idx, f_idx] .+= 1/x
-    Y[t_idx, t_idx] .+= 1/x
-    Y[f_idx, t_idx] .-= 1/x
-    Y[t_idx, f_idx] .-= 1/x
+function add_branch_to_dc_admittance_matrix!(Y::SparseMatrixCSC{<:Real,Int64},
+    f_idx::BitVector, t_idx::BitVector, x::Real)
+    Y[f_idx, f_idx] .+= 1 / x
+    Y[t_idx, t_idx] .+= 1 / x
+    Y[f_idx, t_idx] .-= 1 / x
+    Y[t_idx, f_idx] .-= 1 / x
 end
 
 """
@@ -130,9 +130,9 @@ end
 """
 function contingency_matrix(case::Case, f_bus::String, t_bus::String)
     Y = spzeros(ComplexF64, length(case.bus.ID), length(case.bus.ID))
-    for branch in eachrow(case.branch[case.branch.f_bus.==f_bus .&& case.branch.t_bus.==t_bus, :])
-        add_branch_to_admittance_matrix!(Y, case.bus.ID.==f_bus, case.bus.ID.==t_bus,
-                                         branch.r, branch.x, branch.b)
+    for branch in eachrow(case.branch[case.branch.f_bus.==f_bus.&&case.branch.t_bus.==t_bus, :])
+        add_branch_to_admittance_matrix!(Y, case.bus.ID .== f_bus, case.bus.ID .== t_bus,
+            branch.r, branch.x, branch.b)
     end
     return Y
 end
@@ -141,17 +141,17 @@ function contingency_matrix(case::Case, line::Int)
     Y = spzeros(ComplexF64, length(case.bus.ID), length(case.bus.ID))
     add_branch_to_admittance_matrix!(
         Y,
-        case.bus.ID.==case.branch[line, :f_bus],
-        case.bus.ID.==case.branch[line, :t_bus],
+        case.bus.ID .== case.branch[line, :f_bus],
+        case.bus.ID .== case.branch[line, :t_bus],
         case.branch[line, :r], case.branch[line, :x], case.branch[line, :b])
     return Y
 end
 
 function dc_contingency_matrix(case::Case, f_bus::String, t_bus::String)
     Y = spzeros(length(case.bus.ID), length(case.bus.ID))
-    for branch in eachrow(case.branch[case.branch.f_bus.==f_bus .&& case.branch.t_bus.==t_bus, :])
-        add_branch_to_dc_admittance_matrix!(Y, case.bus.ID.==f_bus, case.bus.ID.==t_bus,
-                                         branch.x)
+    for branch in eachrow(case.branch[case.branch.f_bus.==f_bus.&&case.branch.t_bus.==t_bus, :])
+        add_branch_to_dc_admittance_matrix!(Y, case.bus.ID .== f_bus, case.bus.ID .== t_bus,
+            branch.x)
     end
     return Y
 end
@@ -160,8 +160,8 @@ function dc_contingency_matrix(case::Case, line::Int)
     Y = spzeros(length(case.bus.ID), length(case.bus.ID))
     add_branch_to_dc_admittance_matrix!(
         Y,
-        case.bus.ID.==case.branch[line, :f_bus],
-        case.bus.ID.==case.branch[line, :t_bus],
+        case.bus.ID .== case.branch[line, :f_bus],
+        case.bus.ID .== case.branch[line, :t_bus],
         case.branch[line, :x])
     return Y
 end
@@ -171,11 +171,11 @@ end
     A is the system incidence matrix and Y_pr is the primitive
     admittance matrix.
 """
-function get_admittance_matrix(A::SparseMatrixCSC{Int64, Int64},
-    Y_pr::Diagonal{ComplexF64})::SparseMatrixCSC{ComplexF64, Int64}
-    return A'*Y_pr*A
+function get_admittance_matrix(A::SparseMatrixCSC{Int64,Int64},
+    Y_pr::Diagonal{ComplexF64})::SparseMatrixCSC{ComplexF64,Int64}
+    return A' * Y_pr * A
 end
 
 function get_complex_voltage_vector(case::Case)::Vector{ComplexF64}
-    case.bus[:, :Vm].*exp.(im*case.bus[:, :Va])
+    case.bus[:, :Vm] .* exp.(im * case.bus[:, :Va])
 end

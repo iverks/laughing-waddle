@@ -1,6 +1,6 @@
 using DataFrames
 
-fname = joinpath(@__DIR__, joinpath("../cases", "bus_3.toml"))
+fname = joinpath(@__DIR__, "../cases", "bus_3.toml")
 
 case = Case(fname)
 
