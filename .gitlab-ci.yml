@@ -1,29 +1,61 @@
-.test_template: &test_definition
-  # Uncomment below (and adjust as needed) to run the tests for specific references
-  # only, such as the default branch, a `development` branch, and so on:
-  # rules:
-  #   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  #   - if: $CI_COMMIT_BRANCH == "development"
+stages:
+  - test_dev
+  - test_main
+  - formatting
+  - deploy
+
+test:latest:
+  # Runs tests
+  stage: test_dev
+  image: julia:latest
   script:
-    # Let's run the tests. Substitute `coverage = false` below, if you do not
-    # want coverage results.
-    - julia -e 'using Pkg; Pkg.instantiate(); Pkg.build("SintPowerCase"); Pkg.test("SintPowerCase"; coverage = true)'
-    # Comment out below if you do not want coverage results.
-    - julia -e 'using Pkg; Pkg.add("Coverage");
-      import SintPowerCase; cd(joinpath(dirname(pathof(SintPowerCase)), ".."));
-      using Coverage; cl, tl = get_summary(process_folder());
-      println("(", cl/tl*100, "%) covered")'
+    - julia --project=@. -e "import Pkg; Pkg.test(; coverage = true)"
+  except:
+    - main
 
-test:lts:
-  image: julia:1.6.7
-  <<: *test_definition
+test:master:
+  # Runs tests and updates coverage badge
+  stage: test_main
+  image: julia:latest
+  script:
+    - julia --project=@. -e "import Pkg; Pkg.test(; coverage = true)"
+    - julia --project=coverage -e 'import Pkg; Pkg.instantiate()'
+    - |
+      julia --project=@. --eval '
+      import Pkg; Pkg.test(; coverage = true); Pkg.add("Coverage"); Pkg.instantiate()
+      using Coverage
+      processed = process_folder()
+      covered_lines, total_lines = get_summary(processed)
+      percentage = covered_lines / total_lines * 100
+      return println("($(percentage)%) covered")'
 
-test:1.10:
-  image: julia:1.10
-  <<: *test_definition
+  coverage: "/\\(\\d+.\\d+\\%\\) covered/"
+  only:
+    - main
+
+format:
+  stage: formatting
+  image: julia:latest
+  script:
+    - julia -e '@info "Verifying formatting"'
+    - |
+      julia --eval '
+      import Pkg
+      Pkg.add("JuliaFormatter")
+      using JuliaFormatter
+      properly_formatted = format("./src"; verbose = true)
+
+      if properly_formatted
+        @info "Formatting verified"
+      else 
+        @info "Formatting failed - some files have not yet been formatted"
+      end
+      exit(properly_formatted ? 0 : 1)'
+  only:
+    - main
 
 pages:
-  image: julia:1.10
+  image: julia:latest
   stage: deploy
   script:
     # - apt-get update -qq && apt-get install -y git # needed by Documenter
