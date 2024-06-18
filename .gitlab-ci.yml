@@ -1,7 +1,6 @@
 stages:
   - test_dev
   - test_main
-  - formatting
   - deploy
 
 test:latest:
@@ -34,7 +33,7 @@ test:master:
     - main
 
 format:
-  stage: formatting
+  stage: deploy
   image: julia:latest
   script:
     - julia -e '@info "Verifying formatting"'
@@ -55,18 +54,22 @@ format:
     - main
 
 pages:
-  image: julia:latest
   stage: deploy
+  image: julia:latest
   script:
-    # - apt-get update -qq && apt-get install -y git # needed by Documenter
-    - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()' # Install dependencies
-    - julia --color=yes docs/make.jl # make documentation
-    - mv docs/build public # move to the directory picked up by Gitlab pages
+    - "apt-get -qq update; apt-get -y install git"
+    - |-
+      julia --project=@. -e "import Pkg; Pkg.build()"
+    - |-
+      julia --project=docs -e 'using Pkg; Pkg.instantiate(); Pkg.add("Documenter"); Pkg.add("Dates"); Pkg.develop(PackageSpec(path=pwd()))'
+    - "julia --project=docs --color=yes docs/make.jl"
+    - "mv docs/build public"
   artifacts:
     paths:
       - public
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  only:
+    - "main"
+    - "merge_requests"
 
 deploy:
   stage: deploy
