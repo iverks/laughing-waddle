@@ -1,4 +1,4 @@
 using Documenter, SintPowerCase
 
-makedocs(sitename="SintPowerCase documentation")
-deploydocs(repo="gitlab.sintef.no/power-system-asset-management/SintPowerCase.jl")
+repo = Remotes.GitLab("gitlab.sintef.no", "power-system-asset-management", "SintPowerCase.jl")
+makedocs(sitename="SintPowerCase documentation", modules=[SintPowerCase], repo=repo)
