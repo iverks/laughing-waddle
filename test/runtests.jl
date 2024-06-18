@@ -1,6 +1,3 @@
-using Test
-using SintPowerCase
-
 include("set_up_test_cases.jl")
 
 @testset "Test case format" begin

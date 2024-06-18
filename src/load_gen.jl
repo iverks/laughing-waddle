@@ -29,22 +29,22 @@ end
 """
 function get_all_buses_aggregated_power(df::DataFrame,
     type::Symbol)
-    combine(groupby(df, :bus), type => sum)[!, Symbol(string(type)*"_sum")]
+    combine(groupby(df, :bus), type => sum)[!, Symbol(string(type) * "_sum")]
 end
 
 
 """Return indices of the buses with loads."""
 function get_load_indices(mpc::Case)::Vector{Bool}
     if isempty(mpc.load)
-        return mpc.bus.Pd.>0
+        return mpc.bus.Pd .> 0
     else
-	    return ∈(mpc.load.bus).(mpc.bus.ID)
+        return ∈(mpc.load.bus).(mpc.bus.ID)
     end
 end
 
 """Return indices of the buses with generators."""
 function get_gen_indices(mpc::Case)::Vector{Bool}
-	return ∈(mpc.gen.bus).(mpc.bus.ID)
+    return ∈(mpc.gen.bus).(mpc.bus.ID)
 end
 
 """
@@ -52,14 +52,14 @@ end
     Returns true if the bus bus_id is a load.
 """
 function is_load_bus(case::Case, bus_id::String)::Bool
-	return any(x-> x>0, case.bus[case.bus.ID.==bus_id, :Pd])
+    return any(x -> x > 0, case.bus[case.bus.ID.==bus_id, :Pd])
 end
 
 """
     Returns the power injection vector.
 """
 function get_power_injection_vector(case::Case)::Vector{Float64}
-	Pd = zeros(size(case.bus, 1))
+    Pd = zeros(size(case.bus, 1))
     Pg = zeros(length(Pd))
 
     Pd[get_load_indices(case)] = get_load_buses_power(case)
@@ -68,13 +68,13 @@ function get_power_injection_vector(case::Case)::Vector{Float64}
 end
 
 function get_complex_power_injection_vector(case::Case)
-	Qd = zeros(size(case.bus, 1))
+    Qd = zeros(size(case.bus, 1))
     Qd[get_load_indices(case)] = get_load_buses_reactive_power(case)
-    return get_power_injection_vector(case)-im*Qd
+    return get_power_injection_vector(case) - im * Qd
 end
 
 function get_complex_power_injection_vector_pu(case::Case)
-    get_complex_power_injection_vector(case)/case.baseMVA
+    get_complex_power_injection_vector(case) / case.baseMVA
 end
 
 
@@ -82,18 +82,18 @@ end
     Returns the power for generator buses for os
 """
 function get_gen_buses_power(case::Case, os::Integer)
-    get_all_buses_aggregated_power(case.gendata[case.gendata.OS.==os,:], :P)
+    get_all_buses_aggregated_power(case.gendata[case.gendata.OS.==os, :], :P)
 end
 
 """
     Returns the power demamd for load buses for os
 """
 function get_load_buses_power(case::Case, os::Integer)
-    get_all_buses_aggregated_power(case.loaddata[case.loaddata.OS.==os,:], :P)
+    get_all_buses_aggregated_power(case.loaddata[case.loaddata.OS.==os, :], :P)
 end
 
 function get_power_injection_vector(case::Case, os::Integer)
-	Pd = zeros(size(case.bus, 1))
+    Pd = zeros(size(case.bus, 1))
     Pg = zeros(length(Pd))
     Pd[get_load_indices(case)] = get_load_buses_power(case, os)
     Pg[get_gen_indices(case)] = get_gen_buses_power(case, os)
@@ -101,7 +101,7 @@ function get_power_injection_vector(case::Case, os::Integer)
 end
 
 function get_power_injection_vector_pu(case::Case, os::Integer)
-    get_power_injection_vector(case, os)/case.baseMVA
+    get_power_injection_vector(case, os) / case.baseMVA
 end
 
 
@@ -125,26 +125,26 @@ function create_random_states!(case::Case, n_states::Integer, std::Real)
     n_gens = length(case.gen.P)
 
     gendata = DataFrame(OS=repeat(1:n_states, inner=n_gens),
-                        ID=repeat(case.gen.ID, outer=n_states),
-                        bus=repeat(case.gen.bus, outer=n_states),
-                        P=zeros(n_states*n_gens))
+        ID=repeat(case.gen.ID, outer=n_states),
+        bus=repeat(case.gen.bus, outer=n_states),
+        P=zeros(n_states * n_gens))
     loaddata = DataFrame(OS=repeat(1:n_states, inner=n_loads),
-                         ID=repeat(case.load.ID, outer=n_states),
-                         bus=repeat(case.load.bus, outer=n_states),
-                         P=zeros(n_states*n_loads))
+        ID=repeat(case.load.ID, outer=n_states),
+        bus=repeat(case.load.bus, outer=n_states),
+        P=zeros(n_states * n_loads))
     for os = 1:n_states
         # Draw a new random load
-        Pl = case.load.P.*(ones(n_loads)+std*randn(n_loads))
+        Pl = case.load.P .* (ones(n_loads) + std * randn(n_loads))
         loaddata[loaddata.OS.==os, :P] = Pl
         # Set total prdoction equal to total load
         Pg = sum(Pl)
         S = sum(case.gen.Pmax)
         for id in case.gen.ID
-            gendata[gendata.OS.==os .&& gendata.ID.==id, :P] .= Pg*case.gen[case.gen.ID.==id, :Pmax]/S
+            gendata[gendata.OS.==os.&&gendata.ID.==id, :P] .= Pg * case.gen[case.gen.ID.==id, :Pmax] / S
         end
     end
-   case.gendata = gendata 
-   case.loaddata = loaddata 
+    case.gendata = gendata
+    case.loaddata = loaddata
 end
 
 """
