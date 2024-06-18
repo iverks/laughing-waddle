@@ -27,8 +27,7 @@ end
         df: Dataframe with either the power for all generators or loads.
         type: Active or reactive power.
 """
-function get_all_buses_aggregated_power(df::DataFrame,
-    type::Symbol)
+function get_all_buses_aggregated_power(df::DataFrame, type::Symbol)
     combine(groupby(df, :bus), type => sum)[!, Symbol(string(type) * "_sum")]
 end
 
@@ -124,14 +123,18 @@ function create_random_states!(case::Case, n_states::Integer, std::Real)
     n_loads = length(case.load.P)
     n_gens = length(case.gen.P)
 
-    gendata = DataFrame(OS=repeat(1:n_states, inner=n_gens),
-        ID=repeat(case.gen.ID, outer=n_states),
-        bus=repeat(case.gen.bus, outer=n_states),
-        P=zeros(n_states * n_gens))
-    loaddata = DataFrame(OS=repeat(1:n_states, inner=n_loads),
-        ID=repeat(case.load.ID, outer=n_states),
-        bus=repeat(case.load.bus, outer=n_states),
-        P=zeros(n_states * n_loads))
+    gendata = DataFrame(
+        OS = repeat(1:n_states, inner = n_gens),
+        ID = repeat(case.gen.ID, outer = n_states),
+        bus = repeat(case.gen.bus, outer = n_states),
+        P = zeros(n_states * n_gens),
+    )
+    loaddata = DataFrame(
+        OS = repeat(1:n_states, inner = n_loads),
+        ID = repeat(case.load.ID, outer = n_states),
+        bus = repeat(case.load.bus, outer = n_states),
+        P = zeros(n_states * n_loads),
+    )
     for os = 1:n_states
         # Draw a new random load
         Pl = case.load.P .* (ones(n_loads) + std * randn(n_loads))
@@ -140,7 +143,8 @@ function create_random_states!(case::Case, n_states::Integer, std::Real)
         Pg = sum(Pl)
         S = sum(case.gen.Pmax)
         for id in case.gen.ID
-            gendata[gendata.OS.==os.&&gendata.ID.==id, :P] .= Pg * case.gen[case.gen.ID.==id, :Pmax] / S
+            gendata[gendata.OS.==os.&&gendata.ID.==id, :P] .=
+                Pg * case.gen[case.gen.ID.==id, :Pmax] / S
         end
     end
     case.gendata = gendata

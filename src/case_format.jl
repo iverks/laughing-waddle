@@ -30,7 +30,20 @@ function Case()::Case
     transformer = DataFrame()
     gendata = DataFrame()
     ref_bus = 0
-    Case(baseMVA, bus, branch, gen, load, switch, indicator, reldata, loaddata, transformer, gendata, ref_bus)
+    Case(
+        baseMVA,
+        bus,
+        branch,
+        gen,
+        load,
+        switch,
+        indicator,
+        reldata,
+        loaddata,
+        transformer,
+        gendata,
+        ref_bus,
+    )
 end
 
 function Case(fname::String)::Case
@@ -38,7 +51,7 @@ function Case(fname::String)::Case
     conf = TOML.parsefile(fname)
     dir = splitdir(fname)[1]
     for (field, file) in conf["files"]
-        temp = CSV.File(joinpath(dir, file), stringtype=String) |> DataFrame
+        temp = CSV.File(joinpath(dir, file), stringtype = String) |> DataFrame
         # Convert IDs to string
         for key in ["bus", "ID", "f_bus", "t_bus"]
             if key in names(temp)
@@ -56,16 +69,18 @@ function Case(fname::String)::Case
         end
 
         # Make sure that values are float and not Int
-        transform!(temp,
-            setdiff(names(temp, Int), ["status", "type"]) .=> ByRow(Float64), renamecols=false)
+        transform!(
+            temp,
+            setdiff(names(temp, Int), ["status", "type"]) .=> ByRow(Float64),
+            renamecols = false,
+        )
 
     end
 
     # Make sure that load is in the case
     if isempty(mpc.load)
         indices = get_load_indices(mpc)
-        mpc.load = DataFrame(ID=1:sum(indices),
-            bus=mpc.bus.ID[indices])
+        mpc.load = DataFrame(ID = 1:sum(indices), bus = mpc.bus.ID[indices])
         mpc.load[:, :P] = mpc.bus[indices, :Pd]
         mpc.load[:, :Q] = mpc.bus[indices, :Qd]
     end
@@ -74,7 +89,8 @@ function Case(fname::String)::Case
     end
     if "P" ∉ names(mpc.load)
         @warn "load dataframe found, but no load found, attemping to use bus dataframe"
-        mpc.load[!, :P] = [mpc.bus[mpc.bus.ID.==load.bus, :Pd][1] for load in eachrow(mpc.load)]
+        mpc.load[!, :P] =
+            [mpc.bus[mpc.bus.ID.==load.bus, :Pd][1] for load in eachrow(mpc.load)]
     end
     if "type" ∉ names(mpc.load)
         @warn "Customer type not found."
@@ -89,10 +105,12 @@ function Case(fname::String)::Case
 
     if isempty(mpc.loaddata)
         indices = get_load_indices(mpc)
-        mpc.loaddata = DataFrame(ID=1:sum(indices),
-            bus=mpc.bus.ID[indices],
-            OS=ones(Int, sum(indices)),
-            P=mpc.bus.Pd[indices])
+        mpc.loaddata = DataFrame(
+            ID = 1:sum(indices),
+            bus = mpc.bus.ID[indices],
+            OS = ones(Int, sum(indices)),
+            P = mpc.bus.Pd[indices],
+        )
     end
 
     # 
@@ -154,8 +172,7 @@ function update_ID!(mpc::Case)
 end
 
 function to_csv(mpc::Case, fname::String)
-    conf = Dict("files" => Dict{String,String}(),
-        "configuration" => Dict{String,Any}())
+    conf = Dict("files" => Dict{String,String}(), "configuration" => Dict{String,Any}())
     for field in fieldnames(typeof(mpc))
         df = getfield(mpc, field)
         if typeof(df) == DataFrame
@@ -217,5 +234,3 @@ end
 function get_bus_row(mpc::Case, id::String)::Int64
     get_id_idx(mpc, :bus, id)
 end
-
-
